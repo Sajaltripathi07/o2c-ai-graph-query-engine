@@ -7,7 +7,10 @@ const { SYSTEM_PROMPT } = require('./prompt');
 
 const app = express();
 app.use(cors({
-  origin: "*"
+  origin: [
+    "https://o2c-graph-query-engine.vercel.app/"
+  ],
+  credentials: true
 }));
 app.use(express.json());
 
