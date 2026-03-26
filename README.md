@@ -53,7 +53,7 @@ npm run dev        # Starts on http://localhost:3000
 └───────────┬──────────────────────────┬───────────────────────┘
             │                          │
 ┌───────────▼──────────┐  ┌───────────▼───────────────────────┐
-│     SQLite (o2c.db)  │  │     Gemini 1.5 Flash API          │
+│     SQLite (o2c.db)  │  │     Gemini 2.5 Flash API          │
 │  11 normalized tables│  │  - Schema-aware system prompt     │
 │  indexed FK columns  │  │  - Returns {sql, explanation}     │
 │  ~17k total rows     │  │  - Second call: result summary    │
