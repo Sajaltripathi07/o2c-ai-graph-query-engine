@@ -5,7 +5,8 @@ import StatsBar from './components/StatsBar.jsx'
 import NodeInspector from './components/NodeInspector.jsx'
 import './App.css'
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
+
+const API = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
 export default function App() {
   const [graphData, setGraphData] = useState({ nodes: [], edges: [] })
@@ -18,34 +19,45 @@ export default function App() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API}/graph?limit=25`).then(r => {
+      fetch(`${API}/api/graph?limit=25`).then(r => {
         if (!r.ok) throw new Error(`Graph API error: ${r.status}`)
         return r.json()
       }),
-      fetch(`${API}/stats`).then(r => {
+      fetch(`${API}/api/stats`).then(r => {
         if (!r.ok) throw new Error(`Stats API error: ${r.status}`)
         return r.json()
       })
-    ]).then(([graph, st]) => {
-      setGraphData(graph)
-      setStats(st)
-      setLoading(false)
-    }).catch(err => {
-      console.error('API error:', err)
-      setError(err.message)
-      setLoading(false)
-    })
+    ])
+      .then(([graph, st]) => {
+        setGraphData(graph)
+        setStats(st)
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error('API error:', err)
+        setError(err.message)
+        setLoading(false)
+      })
   }, [])
 
   const expandNode = useCallback(async (nodeId) => {
     try {
-      const res = await fetch(`${API}/graph/expand/${encodeURIComponent(nodeId)}`)
+      const res = await fetch(
+        `${API}/api/graph/expand/${encodeURIComponent(nodeId)}`
+      )
       const data = await res.json()
+
       setGraphData(prev => {
         const existingNodeIds = new Set(prev.nodes.map(n => n.id))
-        const existingEdgeKeys = new Set(prev.edges.map(e => `${e.source}-${e.target}-${e.label}`))
+        const existingEdgeKeys = new Set(
+          prev.edges.map(e => `${e.source}-${e.target}-${e.label}`)
+        )
+
         const newNodes = data.nodes.filter(n => !existingNodeIds.has(n.id))
-        const newEdges = data.edges.filter(e => !existingEdgeKeys.has(`${e.source}-${e.target}-${e.label}`))
+        const newEdges = data.edges.filter(
+          e => !existingEdgeKeys.has(`${e.source}-${e.target}-${e.label}`)
+        )
+
         return {
           nodes: [...prev.nodes, ...newNodes],
           edges: [...prev.edges, ...newEdges]
@@ -58,15 +70,46 @@ export default function App() {
 
   if (error) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', flexDirection: 'column', gap: 16, color: '#e2e8f0', background: '#0a0e1a' }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        flexDirection: 'column',
+        gap: 16,
+        color: '#e2e8f0',
+        background: '#0a0e1a'
+      }}>
         <div style={{ fontSize: 32 }}>⚠️</div>
-        <div style={{ fontSize: 16, fontWeight: 600 }}>Cannot connect to backend</div>
-        <div style={{ fontSize: 13, color: '#94a3b8', maxWidth: 400, textAlign: 'center' }}>{error}</div>
-        <div style={{ fontSize: 12, color: '#64748b', background: '#141d35', padding: '12px 20px', borderRadius: 8, fontFamily: 'monospace' }}>
+        <div style={{ fontSize: 16, fontWeight: 600 }}>
+          Cannot connect to backend
+        </div>
+        <div style={{ fontSize: 13, color: '#94a3b8', maxWidth: 400, textAlign: 'center' }}>
+          {error}
+        </div>
+        <div style={{
+          fontSize: 12,
+          color: '#64748b',
+          background: '#141d35',
+          padding: '12px 20px',
+          borderRadius: 8,
+          fontFamily: 'monospace'
+        }}>
           Make sure backend is running:<br />
           cd backend && node server.js
         </div>
-        <button onClick={() => window.location.reload()} style={{ background: '#3b82f6', border: 'none', color: 'white', padding: '8px 20px', borderRadius: 8, cursor: 'pointer', fontSize: 13 }}>
+        <button
+          onClick={() => window.location.reload()}
+          style={{
+            background: '#3b82f6',
+            border: 'none',
+            color: 'white',
+            padding: '8px 20px',
+            borderRadius: 8,
+            cursor: 'pointer',
+            fontSize: 13
+          }}
+        >
           Retry
         </button>
       </div>
@@ -79,13 +122,22 @@ export default function App() {
         <div className="header-left">
           <div className="logo">
             <span className="logo-icon">⬡</span>
-            <span className="logo-text">O2C <span className="logo-accent">Graph</span></span>
+            <span className="logo-text">
+              O2C <span className="logo-accent">Graph</span>
+            </span>
           </div>
-          <span className="header-subtitle">SAP Order-to-Cash Intelligence</span>
+          <span className="header-subtitle">
+            SAP Order-to-Cash Intelligence
+          </span>
         </div>
+
         <StatsBar stats={stats} />
+
         <div className="header-right">
-          <button className="toggle-chat" onClick={() => setChatOpen(v => !v)}>
+          <button
+            className="toggle-chat"
+            onClick={() => setChatOpen(v => !v)}
+          >
             {chatOpen ? '◀ Hide Chat' : '▶ Show Chat'}
           </button>
         </div>
@@ -106,15 +158,19 @@ export default function App() {
               highlightedNodes={highlightedNodes}
             />
           )}
+
           {selectedNode && (
-            <NodeInspector node={selectedNode} onClose={() => setSelectedNode(null)} />
+            <NodeInspector
+              node={selectedNode}
+              onClose={() => setSelectedNode(null)}
+            />
           )}
         </div>
 
         {chatOpen && (
           <div className="chat-area">
             <ChatPanel
-              apiUrl={API}
+              apiUrl={`${API}/api`}   
               onHighlightNodes={setHighlightedNodes}
             />
           </div>
