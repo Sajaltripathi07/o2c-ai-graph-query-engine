@@ -31,34 +31,6 @@ npm run dev        # Starts on http://localhost:3000
 
 ---
 
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        Browser                              │
-│  ┌──────────────────────┐  ┌──────────────────────────────┐ │
-│  │  Cytoscape.js Graph  │  │      Chat Interface          │ │
-│  │  - Node expand       │  │  - Natural language input    │ │
-│  │  - Click inspect     │  │  - Markdown results          │ │
-│  │  - Highlight nodes   │  │  - SQL disclosure            │ │
-│  └──────────┬───────────┘  └──────────────┬───────────────┘ │
-└─────────────┼────────────────────────────-┼─────────────────┘
-              │ REST API                    │ REST API
-┌─────────────▼─────────────────────────────▼─────────────────┐
-│                    Express Backend                           │
-│  GET /api/graph           - graph overview (sampled)        │
-│  GET /api/graph/expand/:id - neighbor expansion             │
-│  GET /api/stats           - entity counts                   │
-│  POST /api/chat           - NL → SQL → answer pipeline      │
-└───────────┬──────────────────────────┬───────────────────────┘
-            │                          │
-┌───────────▼──────────┐  ┌───────────▼───────────────────────┐
-│     SQLite (o2c.db)  │  │     Gemini 1.5 Flash API          │
-│  11 normalized tables│  │  - Schema-aware system prompt     │
-│  indexed FK columns  │  │  - Returns {sql, explanation}     │
-│  ~17k total rows     │  │  - Second call: result summary    │
-└──────────────────────┘  └───────────────────────────────────┘
-```
 
 ---
 
@@ -152,12 +124,3 @@ The system prompt explicitly instructs Gemini to return `"OUT_OF_SCOPE"` in the 
 
 ---
 
-## Environment Variables
-
-```env
-GEMINI_API_KEY=your_key_here   # Required — get free at aistudio.google.com
-PORT=3001                       # Optional, defaults to 3001
-```
-
-Frontend uses Vite proxy (`/api → localhost:3001`) so no env vars needed for local dev.
-For production, set `VITE_API_URL=https://your-backend-url` in `frontend/.env`.
