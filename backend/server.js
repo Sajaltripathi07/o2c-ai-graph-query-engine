@@ -37,7 +37,6 @@ function isOffTopic(query) {
   return OFF_TOPIC_PATTERNS.some(p => p.test(query));
 }
 
-// ✅ FIXED GEMINI CALL
 async function callGemini(userQuery, conversationHistory = []) {
   const messages = [
     {
